@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { useBackgroundMusic } from './hooks/useBackgroundMusic'
 import { useCozyButtonSounds } from './hooks/useCozyButtonSounds'
 import { HomePage } from './pages/HomePage'
 import { ModePage } from './pages/ModePage'
@@ -7,6 +8,7 @@ import { TopicsPage } from './pages/TopicsPage'
 
 function AppRoutes() {
   useCozyButtonSounds()
+  useBackgroundMusic()
 
   return (
     <Routes>
