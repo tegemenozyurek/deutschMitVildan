@@ -216,55 +216,131 @@ export function ZahlenEgzersizPage() {
 
   if (!current) return null
 
+  const progressPct =
+    questions.length > 0 ? ((index + 1) / questions.length) * 100 : 0
+  const optionLetters = ['A', 'B', 'C', 'D'] as const
+  const promptLen = current.prompt.length
+  const promptSize =
+    promptLen <= 8
+      ? 'text-[clamp(3.6rem,17vw,5.75rem)]'
+      : promptLen <= 22
+        ? 'text-[clamp(2.6rem,11.5vw,4.1rem)]'
+        : 'text-[clamp(2.15rem,9vw,3.25rem)]'
+  const longestOption = Math.max(
+    ...current.options.map((o) => o.label.length),
+  )
+  const optionTextSize =
+    longestOption <= 4
+      ? 'text-[clamp(1.85rem,8vw,2.5rem)]'
+      : longestOption <= 22
+        ? 'text-[clamp(1.35rem,5.5vw,1.85rem)]'
+        : 'text-[clamp(1.15rem,4.6vw,1.55rem)]'
+
   return (
-    <PageShell>
-      <header className="relative z-10 w-full max-w-lg px-2 pt-5 text-center">
-        <p className="font-[family-name:var(--font-cozy)] text-sm font-semibold tracking-wide text-[#3a5249]">
-          Soru {progressLabel}
-        </p>
-        <p className="mt-1 text-sm text-[#c0392b]">{current.promptHint}</p>
-        <h1 className="mt-4 break-words font-[family-name:var(--font-cozy)] text-[clamp(1.6rem,7vw,3.2rem)] font-semibold leading-tight text-[#1a1210]">
-          <GermanWithUnd
-            text={current.prompt}
-            undClassName="text-[#1b4d3e]"
-          />
-        </h1>
-      </header>
+    <PageShell className="!px-0 !pb-0 !pt-0 sm:!px-0 sm:!pb-0 sm:!pt-0">
+      <div className="relative z-10 flex min-h-dvh w-full max-w-lg flex-col px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-[max(0.6rem,env(safe-area-inset-top))] sm:mx-auto sm:px-4">
+        {/* Top bar: progress */}
+        <div className="shrink-0 pt-1">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="font-[family-name:var(--font-cozy)] text-sm font-semibold text-[#3a5249]">
+              {progressLabel}
+            </p>
+            <p className="font-[family-name:var(--font-cozy)] text-sm font-semibold text-[#c0392b]">
+              {score} doğru
+            </p>
+          </div>
+          <div
+            className="h-2.5 overflow-hidden rounded-full bg-[#3d2418]/15"
+            role="progressbar"
+            aria-valuenow={index + 1}
+            aria-valuemin={1}
+            aria-valuemax={questions.length}
+            aria-label="İlerleme"
+          >
+            <div
+              className="h-full rounded-full bg-[#e6b422] transition-[width] duration-500 ease-out"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-3 px-1 py-8">
-        {current.options.map((option) => {
-          const isPicked = pickedId === option.id
-          const isCorrect = option.id === current.correctId
-          let style =
-            'bg-[#fff8f0] text-[#1a1210] border-[#3d2418] hover:bg-[#fff3e6]'
-          if (locked && isCorrect) {
-            style = 'bg-[#1b4d3e] text-[#faf3ea] border-[#1b4d3e]'
-          } else if (locked && isPicked && !isCorrect) {
-            style = 'bg-[#c0392b] text-[#faf3ea] border-[#c0392b]'
-          }
+        {/* Prompt */}
+        <div
+          key={current.id}
+          className="flex min-h-0 flex-1 flex-col items-center justify-center px-0.5 py-3 text-center animate-[rise_0.4s_ease_both]"
+        >
+          <p className="mb-3 font-[family-name:var(--font-cozy)] text-lg font-semibold tracking-wide text-[#c0392b] sm:text-xl">
+            {current.promptHint}
+          </p>
+          <h1
+            className={`w-full break-words hyphens-auto font-[family-name:var(--font-cozy)] font-semibold leading-[1.1] tracking-tight text-[#1a1210] ${promptSize}`}
+          >
+            <GermanWithUnd
+              text={current.prompt}
+              undClassName="text-[#1b4d3e]"
+            />
+          </h1>
+        </div>
 
-          return (
-            <button
-              key={option.id}
-              type="button"
-              disabled={locked}
-              onPointerDown={(event) => {
-                if (event.button !== 0 && event.pointerType === 'mouse') return
-                onPick(option.id)
-              }}
-              className={`w-full rounded-2xl border-[3px] px-4 py-4 text-left font-[family-name:var(--font-cozy)] text-base font-semibold transition active:scale-[0.99] disabled:cursor-default sm:text-lg ${style}`}
-            >
-              <GermanWithUnd
-                text={option.label}
-                undClassName={
-                  locked && (isCorrect || (isPicked && !isCorrect))
-                    ? 'text-[#e6b422]'
-                    : 'text-[#1b4d3e]'
-                }
-              />
-            </button>
-          )
-        })}
+        {/* Answers */}
+        <div
+          key={`opts-${current.id}`}
+          className="flex shrink-0 flex-col gap-2.5 pb-1 animate-[rise_0.45s_0.05s_ease_both] sm:gap-3 sm:pb-3"
+        >
+          {current.options.map((option, optionIndex) => {
+            const isPicked = pickedId === option.id
+            const isCorrect = option.id === current.correctId
+            let shell =
+              'border-[#3d2418] bg-[#fff8f0] text-[#1a1210] active:bg-[#fff3e6]'
+            let badge =
+              'border-[#3d2418]/35 bg-[#f0e2d4] text-[#3d2418]'
+            let undTone = 'text-[#1b4d3e]'
+
+            if (locked && isCorrect) {
+              shell = 'border-[#1b4d3e] bg-[#1b4d3e] text-[#faf3ea]'
+              badge = 'border-[#faf3ea]/40 bg-[#143d31] text-[#e6b422]'
+              undTone = 'text-[#e6b422]'
+            } else if (locked && isPicked && !isCorrect) {
+              shell = 'border-[#c0392b] bg-[#c0392b] text-[#faf3ea]'
+              badge = 'border-[#faf3ea]/35 bg-[#9e2e24] text-[#faf3ea]'
+              undTone = 'text-[#f5d76e]'
+            } else if (locked && !isPicked && !isCorrect) {
+              shell =
+                'border-[#3d2418]/25 bg-[#fff8f0]/55 text-[#1a1210]/45'
+              badge =
+                'border-[#3d2418]/15 bg-[#f0e2d4]/60 text-[#3d2418]/45'
+              undTone = 'text-[#1b4d3e]/40'
+            }
+
+            return (
+              <button
+                key={option.id}
+                type="button"
+                disabled={locked}
+                onPointerDown={(event) => {
+                  if (event.button !== 0 && event.pointerType === 'mouse')
+                    return
+                  onPick(option.id)
+                }}
+                className={`flex min-h-[4.25rem] w-full items-center gap-3 rounded-[1.15rem] border-[3px] px-3 py-2.5 text-left transition active:scale-[0.985] disabled:cursor-default sm:min-h-[4.75rem] sm:gap-4 sm:px-4 ${shell}`}
+              >
+                <span
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 font-[family-name:var(--font-cozy)] text-lg font-semibold sm:h-12 sm:w-12 sm:text-xl ${badge}`}
+                >
+                  {optionLetters[optionIndex]}
+                </span>
+                <span
+                  className={`min-w-0 flex-1 font-[family-name:var(--font-cozy)] font-semibold leading-snug break-words ${optionTextSize}`}
+                >
+                  <GermanWithUnd
+                    text={option.label}
+                    undClassName={undTone}
+                  />
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </div>
     </PageShell>
   )
