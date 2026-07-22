@@ -11,6 +11,7 @@ import { ZahlenAnlatimPage } from './pages/ZahlenAnlatimPage'
 import { ZahlenAra2Page } from './pages/ZahlenAra2Page'
 import { ZahlenAra3Page } from './pages/ZahlenAra3Page'
 import { ZahlenDijitalSaatPage } from './pages/ZahlenDijitalSaatPage'
+import { ZahlenEgzersizPage } from './pages/ZahlenEgzersizPage'
 import { ZahlenFiyatPage } from './pages/ZahlenFiyatPage'
 import { ZahlenSectionPage } from './pages/ZahlenSectionPage'
 import { ZahlenZehnerPage } from './pages/ZahlenZehnerPage'
@@ -39,6 +40,7 @@ function AppRoutes() {
         path="/konular/zahlen/anlatim/:sectionId"
         element={<ZahlenSectionPage />}
       />
+      <Route path="/konular/zahlen/egzersiz" element={<ZahlenEgzersizPage />} />
       <Route path="/konular/:topicId/:modeId" element={<ModePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
