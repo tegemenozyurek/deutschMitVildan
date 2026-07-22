@@ -8,6 +8,11 @@ const sections = [
     de: 'Zahlen von 1 bis 12',
   },
   {
+    id: '13-20',
+    tr: '13–20 arası sayılar',
+    de: 'Zahlen von 13 bis 20',
+  },
+  {
     id: 'zehner',
     tr: '10–20–30 … 100',
     de: 'Zehnerzahlen: 10, 20, 30 … 100',

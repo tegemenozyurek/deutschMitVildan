@@ -6,6 +6,7 @@ import { ModePage } from './pages/ModePage'
 import { TopicPage } from './pages/TopicPage'
 import { TopicsPage } from './pages/TopicsPage'
 import { Zahlen1to12Page } from './pages/Zahlen1to12Page'
+import { Zahlen13to20Page } from './pages/Zahlen13to20Page'
 import { ZahlenAnlatimPage } from './pages/ZahlenAnlatimPage'
 import { ZahlenSectionPage } from './pages/ZahlenSectionPage'
 
@@ -20,6 +21,7 @@ function AppRoutes() {
       <Route path="/konular/:topicId" element={<TopicPage />} />
       <Route path="/konular/zahlen/anlatim" element={<ZahlenAnlatimPage />} />
       <Route path="/konular/zahlen/anlatim/1-12" element={<Zahlen1to12Page />} />
+      <Route path="/konular/zahlen/anlatim/13-20" element={<Zahlen13to20Page />} />
       <Route
         path="/konular/zahlen/anlatim/:sectionId"
         element={<ZahlenSectionPage />}
