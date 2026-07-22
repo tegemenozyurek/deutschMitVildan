@@ -21,6 +21,7 @@ class BackgroundMusicPlayer {
   private queue: string[] = []
   private index = 0
   private unlocked = false
+  private duckTimer: number | null = null
 
   constructor() {
     this.audio.preload = 'auto'
@@ -34,6 +35,17 @@ class BackgroundMusicPlayer {
     this.unlocked = true
     this.reshuffle()
     void this.playCurrent()
+  }
+
+  /** Briefly lower BGM while TTS speaks */
+  duck(ms = 1400) {
+    if (!this.unlocked) return
+    this.audio.volume = VOLUME * 0.25
+    if (this.duckTimer != null) window.clearTimeout(this.duckTimer)
+    this.duckTimer = window.setTimeout(() => {
+      this.audio.volume = VOLUME
+      this.duckTimer = null
+    }, ms)
   }
 
   private reshuffle() {
