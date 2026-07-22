@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { GermanWithUnd } from './GermanWithUnd'
 import { PageShell } from './PageShell'
 import { backgroundMusic } from '../lib/backgroundMusic'
 import { prepareGermanSpeech, speakGerman } from '../lib/speakGerman'
@@ -127,13 +128,18 @@ export function ZahlenNumberLesson({
             <span
               className={`font-[family-name:var(--font-cozy)] font-semibold ${
                 longLabels
-                  ? 'w-full break-words text-center text-[clamp(0.95rem,3.8vw,1.25rem)] leading-snug hyphens-auto'
+                  ? 'w-full break-words text-center text-[clamp(1.2rem,5vw,1.55rem)] leading-tight hyphens-auto'
                   : stacked
                     ? 'text-right text-2xl leading-tight sm:text-3xl'
                     : 'mt-2.5 px-0.5 text-center text-xl leading-tight sm:text-2xl'
               } ${active === n ? 'text-[#e6b422]' : 'text-[#c0392b]'}`}
             >
-              {de}
+              <GermanWithUnd
+                text={de}
+                undClassName={
+                  active === n ? 'text-[#faf3ea]' : 'text-[#1b4d3e]'
+                }
+              />
             </span>
           </button>
         ))}

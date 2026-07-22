@@ -72,7 +72,7 @@ function shuffleInPlace<T>(items: T[]) {
 }
 
 /** 0–99 German fragment (for combining after “hundert”). */
-function underHundredGerman(n: number): string {
+export function underHundredGerman(n: number): string {
   if (n <= 0) return ''
   if (n < 10) return onesStandalone[n]
   if (n < 20) return teens[n - 10]
@@ -80,6 +80,20 @@ function underHundredGerman(n: number): string {
   const ones = n % 10
   const tens = Math.floor(n / 10)
   return `${onesBeforeUnd[ones]}und${tensWords[tens]}`
+}
+
+/** Whole euros 0–999 for prices (1 → „ein“). */
+export function euroAmountGerman(n: number): string {
+  if (n < 0 || n > 999) {
+    throw new Error(`euroAmountGerman expects 0–999, got ${n}`)
+  }
+  if (n === 0) return 'null'
+  if (n === 1) return 'ein'
+  if (n < 100) return underHundredGerman(n)
+  if (n % 100 === 0) return hundredsPrefix[Math.floor(n / 100)]
+  const hundreds = Math.floor(n / 100)
+  const rest = n % 100
+  return `${hundredsPrefix[hundreds]}${underHundredGerman(rest)}`
 }
 
 /** German word for 21–99 (compound / “ara” numbers). */

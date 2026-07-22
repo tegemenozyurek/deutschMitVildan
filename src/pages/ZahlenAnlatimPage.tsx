@@ -28,9 +28,14 @@ const sections = [
     de: 'Dreistellige Zahlen: 112, 475, 978',
   },
   {
-    id: '1000-99999',
-    tr: '1.000–99.999',
-    de: 'Zahlen von 1.000 bis 99.999',
+    id: 'fiyat',
+    tr: 'Fiyat sorma',
+    de: 'Nach dem Preis fragen',
+  },
+  {
+    id: 'dijital-saat',
+    tr: 'Dijital saat',
+    de: 'Digitale Uhr',
   },
 ] as const
 

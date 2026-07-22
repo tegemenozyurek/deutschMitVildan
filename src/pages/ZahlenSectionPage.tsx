@@ -9,9 +9,13 @@ const titles: Record<string, { tr: string; de: string }> = {
     tr: 'Ara sayılar: 112, 475, 978',
     de: 'Dreistellige Zahlen: 112, 475, 978',
   },
-  '1000-99999': {
-    tr: '1.000–99.999',
-    de: 'Zahlen von 1.000 bis 99.999',
+  fiyat: {
+    tr: 'Fiyat sorma',
+    de: 'Nach dem Preis fragen',
+  },
+  'dijital-saat': {
+    tr: 'Dijital saat',
+    de: 'Digitale Uhr',
   },
 }
 

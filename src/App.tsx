@@ -10,6 +10,8 @@ import { Zahlen13to20Page } from './pages/Zahlen13to20Page'
 import { ZahlenAnlatimPage } from './pages/ZahlenAnlatimPage'
 import { ZahlenAra2Page } from './pages/ZahlenAra2Page'
 import { ZahlenAra3Page } from './pages/ZahlenAra3Page'
+import { ZahlenDijitalSaatPage } from './pages/ZahlenDijitalSaatPage'
+import { ZahlenFiyatPage } from './pages/ZahlenFiyatPage'
 import { ZahlenSectionPage } from './pages/ZahlenSectionPage'
 import { ZahlenZehnerPage } from './pages/ZahlenZehnerPage'
 
@@ -28,6 +30,11 @@ function AppRoutes() {
       <Route path="/konular/zahlen/anlatim/zehner" element={<ZahlenZehnerPage />} />
       <Route path="/konular/zahlen/anlatim/ara-2" element={<ZahlenAra2Page />} />
       <Route path="/konular/zahlen/anlatim/ara-3" element={<ZahlenAra3Page />} />
+      <Route path="/konular/zahlen/anlatim/fiyat" element={<ZahlenFiyatPage />} />
+      <Route
+        path="/konular/zahlen/anlatim/dijital-saat"
+        element={<ZahlenDijitalSaatPage />}
+      />
       <Route
         path="/konular/zahlen/anlatim/:sectionId"
         element={<ZahlenSectionPage />}
