@@ -16,6 +16,8 @@ type ZahlenNumberLessonProps = {
   columns?: 1 | 2 | 3 | 4
   /** Renders a dice card after the numbers (same size). */
   onReroll?: () => void
+  /** Stacked cards with long German labels (wrap below the number). */
+  longLabels?: boolean
 }
 
 export function ZahlenNumberLesson({
@@ -24,6 +26,7 @@ export function ZahlenNumberLesson({
   numbers,
   columns = 3,
   onReroll,
+  longLabels = false,
 }: ZahlenNumberLessonProps) {
   const [active, setActive] = useState<number | null>(null)
   const [ttsOk, setTtsOk] = useState(true)
@@ -36,7 +39,7 @@ export function ZahlenNumberLesson({
 
   const onPress = (n: number, de: string) => {
     setActive(n)
-    backgroundMusic.duck(1600)
+    backgroundMusic.duck(Math.min(2800, 900 + de.length * 45))
     const ok = speakGerman(de)
     if (!ok) setTtsOk(false)
     window.setTimeout(() => {
@@ -82,9 +85,11 @@ export function ZahlenNumberLesson({
 
       <div
         className={`relative z-10 grid flex-1 content-center gap-3 px-1 py-8 animate-[rise_0.9s_0.08s_ease_both] sm:gap-4 ${gridCols} ${
-          stacked
-            ? 'mx-auto w-[min(100%,20.5rem)] sm:w-[min(100%,22rem)]'
-            : 'w-full max-w-md'
+          longLabels
+            ? 'mx-auto w-[min(100%,22rem)] sm:w-[min(100%,24rem)]'
+            : stacked
+              ? 'mx-auto w-[min(100%,20.5rem)] sm:w-[min(100%,22rem)]'
+              : 'w-full max-w-md'
         }`}
       >
         {numbers.map(({ n, de }) => (
@@ -95,10 +100,12 @@ export function ZahlenNumberLesson({
               if (event.button !== 0 && event.pointerType === 'mouse') return
               onPress(n, de)
             }}
-            className={`flex min-h-[6.25rem] rounded-2xl border-[3px] border-[#3d2418] px-4 py-4 transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c0392b] active:scale-[0.97] sm:min-h-[6.75rem] ${
-              stacked
-                ? 'w-full flex-row items-center justify-between gap-4'
-                : 'flex-col items-center justify-center px-2'
+            className={`overflow-hidden rounded-2xl border-[3px] border-[#3d2418] transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c0392b] active:scale-[0.97] ${
+              longLabels
+                ? 'flex w-full min-h-[6.5rem] flex-col items-stretch justify-center gap-2 px-4 py-3.5'
+                : stacked
+                  ? 'flex min-h-[6.25rem] w-full flex-row items-center justify-between gap-4 px-4 py-4 sm:min-h-[6.75rem]'
+                  : 'flex min-h-[6.25rem] flex-col items-center justify-center px-2 py-4 sm:min-h-[6.75rem]'
             } ${
               active === n
                 ? 'bg-[#3d2418] text-[#faf3ea]'
@@ -108,16 +115,22 @@ export function ZahlenNumberLesson({
           >
             <span
               className={`font-[family-name:var(--font-cozy)] font-semibold leading-none ${
-                stacked ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-4xl'
+                longLabels
+                  ? 'text-3xl sm:text-4xl'
+                  : stacked
+                    ? 'text-4xl sm:text-5xl'
+                    : 'text-3xl sm:text-4xl'
               }`}
             >
               {n}
             </span>
             <span
-              className={`font-[family-name:var(--font-cozy)] font-semibold leading-tight ${
-                stacked
-                  ? 'text-right text-2xl sm:text-3xl'
-                  : 'mt-2.5 px-0.5 text-center text-xl sm:text-2xl'
+              className={`font-[family-name:var(--font-cozy)] font-semibold ${
+                longLabels
+                  ? 'w-full break-words text-center text-[clamp(0.95rem,3.8vw,1.25rem)] leading-snug hyphens-auto'
+                  : stacked
+                    ? 'text-right text-2xl leading-tight sm:text-3xl'
+                    : 'mt-2.5 px-0.5 text-center text-xl leading-tight sm:text-2xl'
               } ${active === n ? 'text-[#e6b422]' : 'text-[#c0392b]'}`}
             >
               {de}
@@ -129,8 +142,12 @@ export function ZahlenNumberLesson({
           <button
             type="button"
             onClick={handleReroll}
-            className={`flex min-h-[6.25rem] items-center justify-center gap-3 rounded-2xl border-[3px] border-[#3d2418] bg-[#fff8f0] px-4 py-4 text-[#1a1210] transition duration-200 hover:bg-[#fff3e6] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c0392b] active:scale-[0.97] sm:min-h-[6.75rem] sm:gap-4 ${
-              stacked ? 'w-full flex-row' : 'flex-col'
+            className={`flex items-center justify-center gap-3 overflow-hidden rounded-2xl border-[3px] border-[#3d2418] bg-[#fff8f0] px-4 py-4 text-[#1a1210] transition duration-200 hover:bg-[#fff3e6] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c0392b] active:scale-[0.97] sm:gap-4 ${
+              longLabels
+                ? 'min-h-[6.5rem] w-full flex-row'
+                : stacked
+                  ? 'min-h-[6.25rem] w-full flex-row sm:min-h-[6.75rem]'
+                  : 'min-h-[6.25rem] flex-col sm:min-h-[6.75rem]'
             }`}
             aria-label="Rastgele sayı"
           >
