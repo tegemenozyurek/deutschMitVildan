@@ -5,7 +5,7 @@ import track4 from '../assets/music/4.mp3'
 
 const TRACKS = [track1, track2, track3, track4] as const
 
-const VOLUME = 0.18
+const VOLUME = 0.1
 
 function shuffle<T>(items: readonly T[]): T[] {
   const next = [...items]

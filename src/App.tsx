@@ -5,6 +5,8 @@ import { HomePage } from './pages/HomePage'
 import { ModePage } from './pages/ModePage'
 import { TopicPage } from './pages/TopicPage'
 import { TopicsPage } from './pages/TopicsPage'
+import { ZahlenAnlatimPage } from './pages/ZahlenAnlatimPage'
+import { ZahlenSectionPage } from './pages/ZahlenSectionPage'
 
 function AppRoutes() {
   useCozyButtonSounds()
@@ -15,6 +17,11 @@ function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/konular" element={<TopicsPage />} />
       <Route path="/konular/:topicId" element={<TopicPage />} />
+      <Route path="/konular/zahlen/anlatim" element={<ZahlenAnlatimPage />} />
+      <Route
+        path="/konular/zahlen/anlatim/:sectionId"
+        element={<ZahlenSectionPage />}
+      />
       <Route path="/konular/:topicId/:modeId" element={<ModePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
