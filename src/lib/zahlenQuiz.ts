@@ -1,9 +1,16 @@
+import { cardinalGerman } from './germanNumbers'
 import {
-  randomThreeDigitMixed,
-  randomTwoDigitMixed,
-  threeDigitGerman,
-  twoDigitGerman,
-} from './germanNumbers'
+  formatEuro,
+  randomEuroPrice,
+  speakableEuro,
+} from './germanPrices'
+import {
+  formatDigitalTime,
+  randomDigitalTime,
+  speakableDigitalTime,
+} from './germanTime'
+
+export type QuizDifficulty = 'kolay' | 'orta' | 'zor'
 
 export type QuizOption = {
   id: string
@@ -20,41 +27,7 @@ export type QuizQuestion = {
 
 type Pair = { n: number; de: string }
 
-const FIXED_1_20: Pair[] = [
-  { n: 1, de: 'eins' },
-  { n: 2, de: 'zwei' },
-  { n: 3, de: 'drei' },
-  { n: 4, de: 'vier' },
-  { n: 5, de: 'fünf' },
-  { n: 6, de: 'sechs' },
-  { n: 7, de: 'sieben' },
-  { n: 8, de: 'acht' },
-  { n: 9, de: 'neun' },
-  { n: 10, de: 'zehn' },
-  { n: 11, de: 'elf' },
-  { n: 12, de: 'zwölf' },
-  { n: 13, de: 'dreizehn' },
-  { n: 14, de: 'vierzehn' },
-  { n: 15, de: 'fünfzehn' },
-  { n: 16, de: 'sechzehn' },
-  { n: 17, de: 'siebzehn' },
-  { n: 18, de: 'achtzehn' },
-  { n: 19, de: 'neunzehn' },
-  { n: 20, de: 'zwanzig' },
-]
-
-const TENS: Pair[] = [
-  { n: 10, de: 'zehn' },
-  { n: 20, de: 'zwanzig' },
-  { n: 30, de: 'dreißig' },
-  { n: 40, de: 'vierzig' },
-  { n: 50, de: 'fünfzig' },
-  { n: 60, de: 'sechzig' },
-  { n: 70, de: 'siebzig' },
-  { n: 80, de: 'achtzig' },
-  { n: 90, de: 'neunzig' },
-  { n: 100, de: 'hundert' },
-]
+const QUESTION_COUNT = 15
 
 function shuffle<T>(items: T[]): T[] {
   const next = [...items]
@@ -65,21 +38,18 @@ function shuffle<T>(items: T[]): T[] {
   return next
 }
 
-function buildPool(): Pair[] {
-  const twoDigit = randomTwoDigitMixed(40).map((n) => ({
-    n,
-    de: twoDigitGerman(n),
-  }))
-  const threeDigit = randomThreeDigitMixed(30).map((n) => ({
-    n,
-    de: threeDigitGerman(n),
-  }))
-  // dedupe by n
-  const map = new Map<number, Pair>()
-  for (const p of [...FIXED_1_20, ...TENS, ...twoDigit, ...threeDigit]) {
-    map.set(p.n, p)
+function rangePairs(from: number, to: number): Pair[] {
+  const pairs: Pair[] = []
+  for (let n = from; n <= to; n += 1) {
+    pairs.push({ n, de: cardinalGerman(n) })
   }
-  return [...map.values()]
+  return pairs
+}
+
+function poolForDifficulty(level: QuizDifficulty): Pair[] {
+  if (level === 'kolay') return rangePairs(0, 20)
+  if (level === 'orta') return rangePairs(10, 99)
+  return rangePairs(20, 999)
 }
 
 function pickDistractors(pool: Pair[], correct: Pair, count: number): Pair[] {
@@ -95,7 +65,7 @@ function makeNumberToGerman(pool: Pair[], index: number): QuizQuestion {
     label: p.de,
   }))
   return {
-    id: `q-n2de-${index}-${correct.n}`,
+    id: `q-n2de-${index}-${correct.n}-${Math.random().toString(36).slice(2, 6)}`,
     prompt: String(correct.n),
     promptHint: 'Almancası hangisi?',
     options,
@@ -111,7 +81,7 @@ function makeGermanToNumber(pool: Pair[], index: number): QuizQuestion {
     label: String(p.n),
   }))
   return {
-    id: `q-de2n-${index}-${correct.n}`,
+    id: `q-de2n-${index}-${correct.n}-${Math.random().toString(36).slice(2, 6)}`,
     prompt: correct.de,
     promptHint: 'Hangi sayı?',
     options,
@@ -119,17 +89,136 @@ function makeGermanToNumber(pool: Pair[], index: number): QuizQuestion {
   }
 }
 
-/** Build 10 fresh multiple-choice Zahlen questions */
-export function generateZahlenQuiz(count = 10): QuizQuestion[] {
-  const pool = buildPool()
-  const questions: QuizQuestion[] = []
-  for (let i = 0; i < count; i += 1) {
-    const kind = Math.random() < 0.5 ? 'n2de' : 'de2n'
-    questions.push(
-      kind === 'n2de'
-        ? makeNumberToGerman(pool, i)
-        : makeGermanToNumber(pool, i),
-    )
-  }
-  return questions
+type TimePair = { key: string; digital: string; spoken: string }
+
+function randomTimePair(): TimePair {
+  const t = randomDigitalTime()
+  const digital = formatDigitalTime(t.hours, t.minutes)
+  const spoken = speakableDigitalTime(t.hours, t.minutes)
+  return { key: digital, digital, spoken }
 }
+
+function makeTimeQuestion(index: number): QuizQuestion {
+  const correct = randomTimePair()
+  const distractors: TimePair[] = []
+  while (distractors.length < 3) {
+    const next = randomTimePair()
+    if (
+      next.key !== correct.key &&
+      !distractors.some((d) => d.key === next.key)
+    ) {
+      distractors.push(next)
+    }
+  }
+
+  const askDigital = Math.random() < 0.5
+  if (askDigital) {
+    const options = shuffle([correct, ...distractors]).map((p) => ({
+      id: `t-${p.key}`,
+      label: p.spoken,
+    }))
+    return {
+      id: `q-time-d-${index}-${correct.key}`,
+      prompt: correct.digital,
+      promptHint: 'Saat Almancası hangisi?',
+      options,
+      correctId: `t-${correct.key}`,
+    }
+  }
+
+  const options = shuffle([correct, ...distractors]).map((p) => ({
+    id: `t-${p.key}`,
+    label: p.digital,
+  }))
+  return {
+    id: `q-time-s-${index}-${correct.key}`,
+    prompt: correct.spoken,
+    promptHint: 'Dijital saat hangisi?',
+    options,
+    correctId: `t-${correct.key}`,
+  }
+}
+
+type PricePair = { key: string; display: string; spoken: string }
+
+function randomPricePair(): PricePair {
+  const p = randomEuroPrice()
+  const display = formatEuro(p.euros, p.cents)
+  const spoken = speakableEuro(p.euros, p.cents)
+  return { key: display, display, spoken }
+}
+
+function makePriceQuestion(index: number): QuizQuestion {
+  const correct = randomPricePair()
+  const distractors: PricePair[] = []
+  while (distractors.length < 3) {
+    const next = randomPricePair()
+    if (
+      next.key !== correct.key &&
+      !distractors.some((d) => d.key === next.key)
+    ) {
+      distractors.push(next)
+    }
+  }
+
+  const askDisplay = Math.random() < 0.5
+  if (askDisplay) {
+    const options = shuffle([correct, ...distractors]).map((p) => ({
+      id: `p-${p.key}`,
+      label: p.spoken,
+    }))
+    return {
+      id: `q-price-d-${index}-${correct.key}`,
+      prompt: correct.display,
+      promptHint: 'Fiyat Almancası hangisi?',
+      options,
+      correctId: `p-${correct.key}`,
+    }
+  }
+
+  const options = shuffle([correct, ...distractors]).map((p) => ({
+    id: `p-${p.key}`,
+    label: p.display,
+  }))
+  return {
+    id: `q-price-s-${index}-${correct.key}`,
+    prompt: correct.spoken,
+    promptHint: 'Fiyat hangisi?',
+    options,
+    correctId: `p-${correct.key}`,
+  }
+}
+
+type Maker = (index: number) => QuizQuestion
+
+/** 15 MC questions tailored to difficulty */
+export function generateZahlenQuiz(
+  level: QuizDifficulty,
+  count = QUESTION_COUNT,
+): QuizQuestion[] {
+  const pool = poolForDifficulty(level)
+  const makers: Maker[] = []
+
+  for (let i = 0; i < count; i += 1) {
+    if (level === 'zor') {
+      const roll = Math.random()
+      if (roll < 0.2) {
+        makers.push((idx) => makeTimeQuestion(idx))
+      } else if (roll < 0.4) {
+        makers.push((idx) => makePriceQuestion(idx))
+      } else if (roll < 0.7) {
+        makers.push((idx) => makeNumberToGerman(pool, idx))
+      } else {
+        makers.push((idx) => makeGermanToNumber(pool, idx))
+      }
+    } else if (Math.random() < 0.5) {
+      makers.push((idx) => makeNumberToGerman(pool, idx))
+    } else {
+      makers.push((idx) => makeGermanToNumber(pool, idx))
+    }
+  }
+
+  return makers.map((make, i) => make(i))
+}
+
+export { QUESTION_COUNT }

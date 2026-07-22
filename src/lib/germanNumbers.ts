@@ -82,6 +82,19 @@ export function underHundredGerman(n: number): string {
   return `${onesBeforeUnd[ones]}und${tensWords[tens]}`
 }
 
+/** Standalone cardinal 0–999 (1 → „eins“). */
+export function cardinalGerman(n: number): string {
+  if (n < 0 || n > 999) {
+    throw new Error(`cardinalGerman expects 0–999, got ${n}`)
+  }
+  if (n === 0) return 'null'
+  if (n < 100) return underHundredGerman(n)
+  if (n % 100 === 0) return hundredsPrefix[Math.floor(n / 100)]
+  const hundreds = Math.floor(n / 100)
+  const rest = n % 100
+  return `${hundredsPrefix[hundreds]}${underHundredGerman(rest)}`
+}
+
 /** Whole euros 0–999 for prices (1 → „ein“). */
 export function euroAmountGerman(n: number): string {
   if (n < 0 || n > 999) {

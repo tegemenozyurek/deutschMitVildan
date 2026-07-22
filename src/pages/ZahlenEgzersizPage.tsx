@@ -6,12 +6,28 @@ import { LogoWithBubble } from '../components/LogoWithBubble'
 import { PageShell } from '../components/PageShell'
 import { burstConfetti } from '../lib/confettiBurst'
 import { playFartSound } from '../lib/fartSound'
-import { generateZahlenQuiz, type QuizQuestion } from '../lib/zahlenQuiz'
+import {
+  generateZahlenQuiz,
+  QUESTION_COUNT,
+  type QuizDifficulty,
+  type QuizQuestion,
+} from '../lib/zahlenQuiz'
 
-type Phase = 'ready' | 'countdown' | 'quiz' | 'done'
+type Phase = 'ready' | 'level' | 'countdown' | 'quiz' | 'done'
+
+const LEVELS: {
+  id: QuizDifficulty
+  label: string
+  detail: string
+}[] = [
+  { id: 'kolay', label: 'Kolay', detail: '0 – 20' },
+  { id: 'orta', label: 'Orta', detail: '10 – 99' },
+  { id: 'zor', label: 'Zor', detail: '20 – 999 · saat · fiyat' },
+]
 
 export function ZahlenEgzersizPage() {
   const [phase, setPhase] = useState<Phase>('ready')
+  const [level, setLevel] = useState<QuizDifficulty | null>(null)
   const [countdown, setCountdown] = useState(3)
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [index, setIndex] = useState(0)
@@ -22,14 +38,14 @@ export function ZahlenEgzersizPage() {
   const current = questions[index]
 
   useEffect(() => {
-    if (phase !== 'countdown') return
+    if (phase !== 'countdown' || !level) return
     setCountdown(3)
     let value = 3
     const id = window.setInterval(() => {
       value -= 1
       if (value <= 0) {
         window.clearInterval(id)
-        setQuestions(generateZahlenQuiz(10))
+        setQuestions(generateZahlenQuiz(level, QUESTION_COUNT))
         setIndex(0)
         setScore(0)
         setPickedId(null)
@@ -40,14 +56,19 @@ export function ZahlenEgzersizPage() {
       setCountdown(value)
     }, 900)
     return () => window.clearInterval(id)
-  }, [phase])
+  }, [phase, level])
 
   const progressLabel = useMemo(() => {
     if (!questions.length) return ''
     return `${index + 1} / ${questions.length}`
   }, [index, questions.length])
 
-  const start = () => setPhase('countdown')
+  const goToLevel = () => setPhase('level')
+
+  const pickLevel = (next: QuizDifficulty) => {
+    setLevel(next)
+    setPhase('countdown')
+  }
 
   const onPick = (optionId: string) => {
     if (!current || locked) return
@@ -74,6 +95,7 @@ export function ZahlenEgzersizPage() {
 
   const restart = () => {
     setPhase('ready')
+    setLevel(null)
     setQuestions([])
     setIndex(0)
     setScore(0)
@@ -92,7 +114,7 @@ export function ZahlenEgzersizPage() {
           <div className="flex w-full max-w-sm flex-col gap-3 px-2">
             <button
               type="button"
-              onClick={start}
+              onClick={goToLevel}
               className="rounded-2xl border-[3px] border-[#3d2418] bg-[#3d2418] px-5 py-4 text-center font-[family-name:var(--font-cozy)] text-lg font-semibold text-[#faf3ea] transition hover:-translate-y-0.5 sm:text-xl"
             >
               Evet
@@ -104,6 +126,46 @@ export function ZahlenEgzersizPage() {
               Geri dön
             </Link>
           </div>
+        </div>
+      </PageShell>
+    )
+  }
+
+  if (phase === 'level') {
+    return (
+      <PageShell>
+        <BrandTitle className="animate-[rise_0.9s_ease_both]" />
+        <div className="relative z-10 flex w-full max-w-md flex-1 flex-col items-center justify-center gap-6 px-2 py-6 animate-[rise_0.9s_0.08s_ease_both]">
+          <div className="text-center">
+            <h1 className="font-[family-name:var(--font-cozy)] text-3xl font-semibold text-[#1a1210] sm:text-4xl">
+              Seviye seç
+            </h1>
+            <p className="mt-2 text-[#3a5249]">{QUESTION_COUNT} soru</p>
+          </div>
+          <div className="flex w-full flex-col gap-3">
+            {LEVELS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => pickLevel(item.id)}
+                className="rounded-2xl border-[3px] border-[#3d2418] bg-[#fff8f0] px-5 py-4 text-left transition hover:-translate-y-0.5 hover:bg-[#fff3e6]"
+              >
+                <span className="block font-[family-name:var(--font-cozy)] text-xl font-semibold text-[#1a1210]">
+                  {item.label}
+                </span>
+                <span className="mt-0.5 block text-sm text-[#3a5249]">
+                  {item.detail}
+                </span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setPhase('ready')}
+            className="w-full rounded-2xl border-[3px] border-[#3d2418]/60 bg-transparent px-5 py-3 text-center font-semibold text-[#3d2418] transition hover:bg-[#fff8f0]/50"
+          >
+            Geri
+          </button>
         </div>
       </PageShell>
     )
@@ -161,7 +223,7 @@ export function ZahlenEgzersizPage() {
           Soru {progressLabel}
         </p>
         <p className="mt-1 text-sm text-[#c0392b]">{current.promptHint}</p>
-        <h1 className="mt-4 break-words font-[family-name:var(--font-cozy)] text-[clamp(2rem,9vw,3.5rem)] font-semibold leading-tight text-[#1a1210]">
+        <h1 className="mt-4 break-words font-[family-name:var(--font-cozy)] text-[clamp(1.6rem,7vw,3.2rem)] font-semibold leading-tight text-[#1a1210]">
           <GermanWithUnd
             text={current.prompt}
             undClassName="text-[#1b4d3e]"
@@ -190,7 +252,7 @@ export function ZahlenEgzersizPage() {
                 if (event.button !== 0 && event.pointerType === 'mouse') return
                 onPick(option.id)
               }}
-              className={`w-full rounded-2xl border-[3px] px-4 py-4 text-left font-[family-name:var(--font-cozy)] text-lg font-semibold transition active:scale-[0.99] disabled:cursor-default sm:text-xl ${style}`}
+              className={`w-full rounded-2xl border-[3px] px-4 py-4 text-left font-[family-name:var(--font-cozy)] text-base font-semibold transition active:scale-[0.99] disabled:cursor-default sm:text-lg ${style}`}
             >
               <GermanWithUnd
                 text={option.label}
