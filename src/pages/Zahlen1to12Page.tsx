@@ -72,11 +72,11 @@ export function Zahlen1to12Page() {
             }`}
             aria-label={`${n}, ${de}`}
           >
-            <span className="font-[family-name:var(--font-cozy)] text-2xl font-semibold leading-none sm:text-3xl">
+            <span className="font-[family-name:var(--font-cozy)] text-xl font-semibold leading-none sm:text-2xl">
               {n}
             </span>
             <span
-              className={`mt-2 font-[family-name:var(--font-cozy)] text-base font-semibold leading-tight sm:text-lg ${
+              className={`mt-2 font-[family-name:var(--font-cozy)] text-lg font-semibold leading-none sm:text-xl ${
                 active === n ? 'text-[#e6b422]' : 'text-[#c0392b]'
               }`}
             >
