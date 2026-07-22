@@ -3,10 +3,13 @@ import { ZahlenNumberLesson } from '../components/ZahlenNumberLesson'
 import { randomTwoDigitMixed, twoDigitGerman } from '../lib/germanNumbers'
 
 function makeNumbers() {
-  return randomTwoDigitMixed(3).map((n) => ({
-    n,
-    de: twoDigitGerman(n),
-  }))
+  // Exactly 3 number cards (+ separate dice card)
+  return randomTwoDigitMixed(3)
+    .slice(0, 3)
+    .map((n) => ({
+      n,
+      de: twoDigitGerman(n),
+    }))
 }
 
 export function ZahlenAra2Page() {
