@@ -48,8 +48,10 @@ function AppRoutes() {
 }
 
 function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename || undefined}>
       <AppRoutes />
     </BrowserRouter>
   )
