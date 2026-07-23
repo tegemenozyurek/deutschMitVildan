@@ -22,6 +22,7 @@ const modes = [
 export function TopicPage() {
   const { topicId = '' } = useParams()
   const topic = topicLabels[topicId]
+  const exerciseLocked = topicId === 'w-fragen'
 
   if (!topic) {
     return (
@@ -45,15 +46,34 @@ export function TopicPage() {
         </div>
 
         <div className="flex w-full max-w-sm flex-col gap-3 px-2">
-          {modes.map((mode) => (
-            <Link
-              key={mode.id}
-              to={`/konular/${topicId}/${mode.id}`}
-              className="rounded-2xl border-[3px] border-[#3d2418] bg-[#fff8f0] px-5 py-4 text-center font-[family-name:var(--font-cozy)] text-lg font-semibold text-[#1a1210] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff3e6] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c0392b] sm:text-xl"
-            >
-              {mode.label}
-            </Link>
-          ))}
+          {modes.map((mode) => {
+            if (mode.id === 'egzersiz' && exerciseLocked) {
+              return (
+                <div
+                  key={mode.id}
+                  aria-disabled="true"
+                  className="flex items-center justify-between gap-3 rounded-2xl border-[3px] border-[#3d2418]/35 bg-[#fff8f0]/55 px-5 py-4 opacity-70"
+                >
+                  <span className="font-[family-name:var(--font-cozy)] text-lg font-semibold text-[#1a1210]/55 sm:text-xl">
+                    {mode.label}
+                  </span>
+                  <span className="shrink-0 rounded-full bg-[#c0392b]/15 px-3 py-1 font-[family-name:var(--font-cozy)] text-sm font-semibold text-[#c0392b]">
+                    Yakında
+                  </span>
+                </div>
+              )
+            }
+
+            return (
+              <Link
+                key={mode.id}
+                to={`/konular/${topicId}/${mode.id}`}
+                className="rounded-2xl border-[3px] border-[#3d2418] bg-[#fff8f0] px-5 py-4 text-center font-[family-name:var(--font-cozy)] text-lg font-semibold text-[#1a1210] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff3e6] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c0392b] sm:text-xl"
+              >
+                {mode.label}
+              </Link>
+            )
+          })}
         </div>
 
         <Link

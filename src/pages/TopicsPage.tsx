@@ -16,7 +16,7 @@ const topics = [
     tr: 'W-Soruları',
     de: 'W-Fragen',
     to: '/konular/w-fragen',
-    locked: true,
+    locked: false,
   },
 ] as const
 
