@@ -6,6 +6,7 @@ import { ModePage } from './pages/ModePage'
 import { TopicPage } from './pages/TopicPage'
 import { TopicsPage } from './pages/TopicsPage'
 import { WFragenAnlatimPage } from './pages/WFragenAnlatimPage'
+import { WFragenEgzersizPage } from './pages/WFragenEgzersizPage'
 import { WFragenSectionPage } from './pages/WFragenSectionPage'
 import { Zahlen1to12Page } from './pages/Zahlen1to12Page'
 import { Zahlen13to20Page } from './pages/Zahlen13to20Page'
@@ -48,6 +49,7 @@ function AppRoutes() {
         path="/konular/w-fragen/anlatim/:sectionId"
         element={<WFragenSectionPage />}
       />
+      <Route path="/konular/w-fragen/egzersiz" element={<WFragenEgzersizPage />} />
       <Route path="/konular/:topicId/:modeId" element={<ModePage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
